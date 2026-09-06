@@ -18,8 +18,8 @@ from analysis import anomaly_detection, cohort_analysis, forecasting, root_cause
 OUT = "screenshots"
 PALETTE = ["#6366F1", "#EC4899", "#10B981", "#F59E0B", "#06B6D4", "#8B5CF6", "#EF4444"]
 
-customers = pd.read_csv("../sample_data/customers.csv")
-orders = pd.read_csv("../sample_data/orders.csv")
+customers = pd.read_csv("../data/sample/customers.csv")
+orders = pd.read_csv("../data/sample/orders.csv")
 df = orders.merge(customers[["customer_id", "region"]].drop_duplicates("customer_id"), on="customer_id", how="left")
 df["order_date"] = pd.to_datetime(df["order_date"])
 

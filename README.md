@@ -12,7 +12,7 @@ view, one-click HTML export, and full LLM cost/audit transparency.
 
 ## Screenshots
 
-All generated from `sample_data/` via `docs/generate_assets.py` — real
+All generated from `data/sample/` via `docs/generate_assets.py` — real
 computed output, not mockups.
 
 | | |
@@ -47,6 +47,45 @@ question -> intent_parser (LLM) -> operation_planner (LLM, validated JSON)
 
 See `core/` for each stage and `core/validation.py` for the guardrails
 (schema-checked columns, allow-listed agg functions, SQL injection guards).
+
+## Project structure
+
+```
+ai-data-analyst/
+├── app.py                    # Streamlit entrypoint (UI + page routing)
+├── core/                     # The LLM-as-planner / code-as-executor pipeline
+│   ├── intent_parser.py          question -> intent (LLM)
+│   ├── operation_planner.py      intent + schema -> validated JSON plan (LLM)
+│   ├── executor.py               plan -> real Pandas/DuckDB execution (no LLM)
+│   ├── response_composer.py      result -> natural language (LLM, result-only context)
+│   ├── self_correcting.py        bounded retry loop around the pipeline above
+│   ├── validation.py             schema/allow-list guardrails, SQL injection guards
+│   ├── join_planner.py           multi-table join key inference + planning
+│   ├── file_loader.py            robust CSV encoding/delimiter detection
+│   ├── chart_selector.py         deterministic chart-type selection
+│   ├── memory.py                 conversational memory (session context)
+│   ├── trust_score.py            per-answer trust scoring
+│   └── llm_client.py             Groq/Ollama backend + usage logging
+├── analysis/                 # Deterministic analysis modules (no LLM)
+│   ├── profiling.py, eda.py, forecasting.py, anomaly_detection.py
+│   ├── segmentation.py, cohort_analysis.py, significance_testing.py
+│   └── root_cause_analysis.py, whatif_simulation.py
+├── api/main.py                # FastAPI layer exposing the same pipeline
+├── connectors/db_connectors.py  # Live DB/Sheets connector stubs
+├── reports/export.py          # HTML report export
+├── tests/                     # Mirrors core/ and analysis/ 1:1
+│   ├── core/                      one test file per core/ module
+│   └── analysis/                  one test file per analysis/ module
+├── data/
+│   └── sample/                 seeded sample_data (customers.csv, orders.csv,
+│                                generator script) for trying every feature
+├── docs/
+│   ├── generate_assets.py      regenerates the README's chart screenshots
+│   └── screenshots/            the chart PNGs embedded above
+├── .streamlit/config.toml     # Dark theme (colors/fonts)
+├── Dockerfile, requirements.txt, .env.example
+└── README.md
+```
 
 ## Status
 
@@ -183,7 +222,7 @@ Implemented (Sections 2 & 4 of the spec):
   mocks: the full pipeline (join planning → intent parsing → operation
   planning → execution → response composition → self-correction → trust
   scoring → conversational memory) was run end-to-end against
-  `sample_data/`, and every deterministic analysis module was checked
+  `data/sample/`, and every deterministic analysis module was checked
   against *known facts baked into that data* — anomaly detection correctly
   flags the deliberately-injected $5,000 outlier order, and root-cause
   analysis correctly attributes the engineered May-June revenue drop to the
@@ -260,8 +299,8 @@ computed result instead of a generated sentence.
 
 ## Sample data
 
-`sample_data/customers.csv` and `sample_data/orders.csv` (regenerate with
-`python sample_data/generate_sample_data.py`) are two related, joinable
+`data/sample/customers.csv` and `data/sample/orders.csv` (regenerate with
+`python data/sample/generate_sample_data.py`) are two related, joinable
 files seeded with intentional real-world messiness so every feature has
 something to find: missing emails/quantities, duplicate rows, a $5,000
 outlier order, an engineered revenue decline in the "East" region
