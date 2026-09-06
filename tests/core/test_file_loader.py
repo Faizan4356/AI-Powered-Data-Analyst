@@ -61,6 +61,9 @@ def test_raises_on_empty_file():
 
 
 def test_raises_clear_error_when_unparseable():
-    # Binary garbage that won't decode cleanly under any tried encoding as valid CSV rows of consistent shape
+    # Full byte-value range: not valid CSV under any tried encoding/delimiter,
+    # including latin-1 (which decodes any single byte, so a shorter garbage
+    # sample can accidentally "parse" into a trivial empty-row table instead
+    # of failing, depending on the installed pandas version's CSV sniffing).
     with pytest.raises(CSVParseError):
-        read_csv_robust(make_file(b"\xff\xfe\x00\x01\x02\x03"))
+        read_csv_robust(make_file(bytes(range(256))))
