@@ -1,5 +1,8 @@
 # AI Data Analyst
 
+**🔗 Live demo: [ai-powered-data-analyst-8cqel7g4zdnvyepbfe8yk2.streamlit.app](https://ai-powered-data-analyst-8cqel7g4zdnvyepbfe8yk2.streamlit.app/)**
+— upload the sample CSVs from `data/sample/` and try it live, no setup needed.
+
 Upload a CSV/Excel dataset and ask questions about it in plain English. The
 LLM never does arithmetic — it only classifies intent and plans an operation;
 every number shown comes from real Pandas/SQL/scikit-learn execution.
